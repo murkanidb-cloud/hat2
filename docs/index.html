@@ -131,6 +131,28 @@
 </dialog>
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Varsayılan dosya yolları
+  const defaultFiles = {
+    mp3: "./docs/Super Mario Bros. Theme Song.mp3",
+    image: "./docs/imlec.jpg",
+    config: "./docs/kiosk_config.json"
+  };
+
+  // Eğer kullanıcı kendi dosyasını yüklemediyse bu varsayılanları kullan
+  const audioElem = document.querySelector("audio");
+  if (audioElem && !audioElem.src) audioElem.src = defaultFiles.mp3;
+
+  const imgElem = document.querySelector("img");
+  if (imgElem && !imgElem.src) imgElem.src = defaultFiles.image;
+
+  fetch(defaultFiles.config)
+    .then(r => r.json())
+    .then(data => {
+      console.log("Varsayılan kiosk_config yüklendi:", data);
+    })
+    .catch(err => console.warn("Varsayılan config okunamadı:", err));
+});
 (function(){
   const $=id=>document.getElementById(id);
   const LS='viewer.cfg.simple';          // rotalar+arkaplan
