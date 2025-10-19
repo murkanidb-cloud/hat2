@@ -167,7 +167,7 @@
     }
   }
 
-  //--- yardımcılar ---
+  //--- yardımcılar .---
   function preferredPath(rel, abs){
     return fetch(rel,{method:'HEAD',cache:'no-store'}).then(r=>{
       if(r.ok) return rel;
