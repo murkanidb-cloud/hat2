@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="tr">
 <head>
@@ -11,6 +10,7 @@
   header .sp{flex:1}
   button{border:1px solid #233044;border-radius:8px;padding:8px 12px;background:#0b1220;color:#e5e7eb;cursor:pointer}
   button.primary{background:#38bdf8;color:#001018;border-color:#38bdf8;font-weight:700}
+  button.music{background:#10b981;color:#001018;border-color:#10b981;font-weight:700}
   .wrap{max-width:1100px;margin:0 auto;padding:12px;display:grid;gap:12px}
   .panel{border:1px solid #233044;border-radius:12px;padding:12px;background:#0f172a}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -23,6 +23,7 @@
 <header>
   <div><strong>Rota Viewer — Kiosk</strong> <span class="hint">• JSON gömülü • dış dosya olmasa da çalışır</span></div>
   <div class="sp"></div>
+  <button id="btnMusic" class="music">🎵 Müziği Durdur</button>
   <button id="btnToggle">Ayarları Göster</button>
 </header>
 
@@ -62,6 +63,11 @@
   </div>
 </div>
 
+<!-- Arka plan müziği -->
+<audio id="bgMusic" loop autoplay>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
 <!-- Gömülü JSON (senin yüklediğin yapı) -->
 <script id="defaultCfg" type="application/json">{"width":900,"height":520,"bg":null,"routes":{"1":[{"x":104,"y":469},{"x":103,"y":470},{"x":87,"y":463},{"x":74,"y":391},{"x":76,"y":251},{"x":147,"y":231},{"x":877,"y":240}],"2":[{"x":112,"y":468},{"x":103,"y":469},{"x":73,"y":433},{"x":73,"y":341},{"x":73,"y":262},{"x":149,"y":231},{"x":375,"y":236},{"x":735,"y":242}],"3":[{"x":103,"y":469},{"x":76,"y":432},{"x":68,"y":242},{"x":608,"y":237}],"4":[{"x":105,"y":467},{"x":75,"y":426},{"x":68,"y":301},{"x":75,"y":232},{"x":537,"y":239}],"5":[{"x":97,"y":469},{"x":77,"y":435},{"x":69,"y":328},{"x":76,"y":241},{"x":473,"y":241}],"6":[{"x":101,"y":470},{"x":71,"y":410},{"x":71,"y":314},{"x":73,"y":233},{"x":349,"y":241}],"7":[{"x":94,"y":465},{"x":75,"y":403},{"x":70,"y":309},{"x":76,"y":233},{"x":263,"y":241}],"8":[{"x":95,"y":471},{"x":74,"y":405},{"x":73,"y":305},{"x":73,"y":241},{"x":190,"y":241}]}}</script>
 
@@ -72,6 +78,33 @@
   const UI='viewer.ui.simple';
   const stage=$('stage'), code=$('code'), go=$('btnGo'), speed=$('speed'), dur=$('dur'), durText=$('durText'), loop=$('loop'), status=$('status');
   const adv=$('adv'), toggle=$('btnToggle'), btnExport=$('btnExport'), btnReset=$('btnReset');
+  const bgMusic=$('bgMusic'), btnMusic=$('btnMusic');
+
+  // Müzik kontrolü
+  let musicPlaying = true;
+  btnMusic.addEventListener('click', ()=> {
+    if(musicPlaying) {
+      bgMusic.pause();
+      btnMusic.textContent = '🎵 Müziği Başlat';
+      btnMusic.style.background = '#ef4444';
+      musicPlaying = false;
+    } else {
+      bgMusic.play().catch(e=>console.log('Müzik oynatılamadı:', e));
+      btnMusic.textContent = '🎵 Müziği Durdur';
+      btnMusic.style.background = '#10b981';
+      musicPlaying = true;
+    }
+  });
+
+  // Sayfa yüklendiğinde müziği başlat (tarayıcı izin verirse)
+  document.addEventListener('DOMContentLoaded', ()=> {
+    bgMusic.play().catch(e=> {
+      console.log('Otomatik müzik oynatma engellendi, kullanıcı etkileşimi gerekli:', e);
+      musicPlaying = false;
+      btnMusic.textContent = '🎵 Müziği Başlat';
+      btnMusic.style.background = '#ef4444';
+    });
+  });
 
   // toggle
   let advVisible=false; function setAdv(v){ advVisible=v; adv.style.display=v?'':'none'; toggle.textContent=v?'Ayarları Gizle':'Ayarları Göster'; }
@@ -102,10 +135,22 @@
   function poly(pts,color,w){ const pl=svg('polyline'); pl.setAttribute('points',pts.map(p=>p.x+','+p.y).join(' ')); pl.setAttribute('fill','none'); pl.setAttribute('stroke',color); pl.setAttribute('stroke-width',w); pl.setAttribute('stroke-linejoin','round'); gRoute.appendChild(pl); }
   function pointOn(pts,t){ if(pts.length<2) return pts[0]||{x:0,y:0}; let total=0,segs=[]; for(let i=0;i<pts.length-1;i++){ const a=pts[i],b=pts[i+1],d=Math.hypot(b.x-a.x,b.y-a.y); segs.push({a,b,d}); total+=d; } const target=t*total; let acc=0; for(const s of segs){ if(acc+s.d>=target){ const lt=s.d===0?0:(target-acc)/s.d; return {x:s.a.x+(s.b.x-s.a.x)*lt, y:s.a.y+(s.b.y-s.a.y)*lt}; } acc+=s.d; } return pts[pts.length-1]; }
 
-  // draw + play
+  // draw + play - İMLEÇ OLARAK RESIM KULLANIMI
   let cfg=null, stopFlag=false;
   function apply(){ const w=cfg.width||900,h=cfg.height||520; stage.setAttribute('width',w); stage.setAttribute('height',h); bg.setAttribute('width',w); bg.setAttribute('height',h); bg.setAttribute('preserveAspectRatio','xMidYMid meet'); gBG.innerHTML=''; gGrid.innerHTML=''; gRoute.innerHTML=''; gDot.innerHTML=''; if(cfg.bg){ setHref(bg,cfg.bg); gBG.appendChild(bg); } else grid(w,h); const arr=Object.keys(cfg.routes).filter(k=>cfg.routes[k]?.length); status.textContent=arr.length?('Hazır rotalar: '+arr.join(', ')):'Hiç rota yok.'; }
-  function placeMarker(p){ gDot.innerHTML=''; const c=svg('circle'); c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',8); c.setAttribute('fill','#38bdf8'); gDot.appendChild(c); }
+  
+  function placeMarker(p){ 
+    gDot.innerHTML=''; 
+    const img=svg('image'); 
+    const size = 32; // İmleç boyutu
+    img.setAttribute('x', p.x - size/2); 
+    img.setAttribute('y', p.y - size/2); 
+    img.setAttribute('width', size); 
+    img.setAttribute('height', size); 
+    setHref(img, 'imleç.jpg'); 
+    gDot.appendChild(img); 
+  }
+  
   function play(i){ const pts=cfg.routes[i]||[]; if(pts.length<1){ status.textContent='Bu koda ait rota yok.'; return; } const durMs=parseInt(dur.value,10); gRoute.innerHTML=''; gDot.innerHTML=''; poly(pts,'#38bdf8',4); const start=()=>{ const t0=performance.now(); const step=now=>{ if(stopFlag) return; const t=Math.min(1,(now-t0)/durMs); const p=pointOn(pts,t); placeMarker(p); if(t<1) requestAnimationFrame(step); else if(loop.checked) requestAnimationFrame(()=>start()); }; requestAnimationFrame(step); }; if(durMs<=0){ placeMarker(pts[pts.length-1]); return; } start(); }
   $('btnStop').addEventListener('click',()=> stopFlag=true);
   $('btnGo').addEventListener('click',()=>{ const m=String(code.value||'').match(/\d+/); const n=m?parseInt(m[0],10):0; if(n<1||n>8){ status.textContent='Kodun ilk sayısı 1–8 olmalı.'; return; } stopFlag=false; play(n); });
