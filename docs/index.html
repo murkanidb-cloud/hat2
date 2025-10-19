@@ -1,37 +1,36 @@
 <!doctype html>
 <html lang="tr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Rota Viewer — Kiosk (JSON gömülü)</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rota Viewer — Kiosk</title>
 <style>
-  body{margin:0;background:#0b1220;color:#e5e7eb;font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto}
-  header{padding:10px 14px;border-bottom:1px solid #233044;background:#0c1426;display:flex;gap:8px;align-items:center}
+  :root{--ink:#e5e7eb;--line:#233044;--panel:#0f172a;--bg:#0b1220;--brand:#38bdf8}
+  *{box-sizing:border-box} body{margin:0;font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto;background:#0b1220;color:#e5e7eb}
+  header{padding:10px 14px;border-bottom:1px solid var(--line);background:#0c1426;display:flex;gap:8px;align-items:center}
   header .sp{flex:1}
-  button{border:1px solid #233044;border-radius:8px;padding:8px 12px;background:#0b1220;color:#e5e7eb;cursor:pointer}
-  button.primary{background:#38bdf8;color:#001018;border-color:#38bdf8;font-weight:700}
-  button.music{background:#10b981;color:#001018;border-color:#10b981;font-weight:700}
   .wrap{max-width:1100px;margin:0 auto;padding:12px;display:grid;gap:12px}
-  .panel{border:1px solid #233044;border-radius:12px;padding:12px;background:#0f172a}
+  .panel{border:1px solid var(--line);border-radius:12px;padding:12px;background:#0f172a}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  input,select{border:1px solid #233044;border-radius:8px;padding:8px;background:#0b1220;color:#e5e7eb}
-  svg{border:1px solid #233044;border-radius:12px;background:#0b1220;display:block}
+  input[type="text"],select{border:1px solid var(--line);border-radius:8px;padding:10px;background:#0b1220;color:#e5e7eb}
+  input[type="range"]{accent-color:#38bdf8}
+  button{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:#0b1220;color:#e5e7eb;cursor:pointer}
+  button.primary{background:#38bdf8;color:#001018;border-color:#38bdf8;font-weight:700}
+  svg{border:1px solid var(--line);border-radius:12px;background:#0b1220;display:block}
   .hint{font-size:13px;color:#94a3b8}
 </style>
 </head>
 <body>
 <header>
-  <div><strong>Rota Viewer — Kiosk</strong> <span class="hint">• JSON gömülü • dış dosya olmasa da çalışır</span></div>
+  <div><strong>Rota Viewer — Kiosk</strong> <span class="hint">• /docs/song.mp3 otomatik • /docs/imleç.jpg imleç</span></div>
   <div class="sp"></div>
-  <button id="btnMusic" class="music">🎵 Müziği Durdur</button>
-  <button id="btnToggle">Ayarları Göster</button>
 </header>
 
 <div class="wrap">
   <div class="panel">
     <div class="row">
       <label>Kod:</label>
-      <input id="code" placeholder="örn: 2-34.5"/>
+      <input id="code" placeholder="örn: 2-34.5" />
       <button id="btnGo" class="primary">Göster</button>
       <label>Hız:</label>
       <select id="speed">
@@ -40,7 +39,7 @@
         <option value="3000" selected>Yavaş</option>
         <option value="6000">Çok Yavaş</option>
       </select>
-      <input id="dur" type="range" min="500" max="30000" step="100" value="3000"/>
+      <input id="dur" type="range" min="500" max="30000" step="100" value="3000" />
       <span id="durText" class="hint">3000 ms</span>
       <label class="hint"><input id="loop" type="checkbox" checked> Sürekli döngü</label>
       <button id="btnStop">Durdur</button>
@@ -48,119 +47,149 @@
     <div id="status" class="hint">Kodun ilk sayısı (1–8) rota seçer. Örn: 8-xxx → Yol 8</div>
   </div>
 
-  <details id="adv" style="display:none;">
-    <summary>Ayarlar • JSON</summary>
-    <div class="panel">
-      <div class="row">
-        <button id="btnExport">JSON Dışa Aktar</button>
-        <button id="btnReset">Yerel ayarları sıfırla</button>
-      </div>
-    </div>
-  </details>
-
   <div class="panel">
     <svg id="stage" width="900" height="520"></svg>
   </div>
 </div>
 
-<!-- Arka plan müziği -->
-<audio id="bgMusic" loop autoplay>
-  <source src="song.mp3" type="audio/mpeg">
-</audio>
-
-<!-- Gömülü JSON (senin yüklediğin yapı) -->
-<script id="defaultCfg" type="application/json">{"width":900,"height":520,"bg":null,"routes":{"1":[{"x":104,"y":469},{"x":103,"y":470},{"x":87,"y":463},{"x":74,"y":391},{"x":76,"y":251},{"x":147,"y":231},{"x":877,"y":240}],"2":[{"x":112,"y":468},{"x":103,"y":469},{"x":73,"y":433},{"x":73,"y":341},{"x":73,"y":262},{"x":149,"y":231},{"x":375,"y":236},{"x":735,"y":242}],"3":[{"x":103,"y":469},{"x":76,"y":432},{"x":68,"y":242},{"x":608,"y":237}],"4":[{"x":105,"y":467},{"x":75,"y":426},{"x":68,"y":301},{"x":75,"y":232},{"x":537,"y":239}],"5":[{"x":97,"y":469},{"x":77,"y":435},{"x":69,"y":328},{"x":76,"y":241},{"x":473,"y":241}],"6":[{"x":101,"y":470},{"x":71,"y":410},{"x":71,"y":314},{"x":73,"y":233},{"x":349,"y":241}],"7":[{"x":94,"y":465},{"x":75,"y":403},{"x":70,"y":309},{"x":76,"y":233},{"x":263,"y":241}],"8":[{"x":95,"y":471},{"x":74,"y":405},{"x":73,"y":305},{"x":73,"y":241},{"x":190,"y":241}]}}</script>
-
 <script>
-(function(){ 
+(function(){
   const $=id=>document.getElementById(id);
-  const LS='viewer.cfg.simple';
-  const UI='viewer.ui.simple';
-  const stage=$('stage'), code=$('code'), go=$('btnGo'), speed=$('speed'), dur=$('dur'), durText=$('durText'), loop=$('loop'), status=$('status');
-  const adv=$('adv'), toggle=$('btnToggle'), btnExport=$('btnExport'), btnReset=$('btnReset');
-  const bgMusic=$('bgMusic'), btnMusic=$('btnMusic');
+  const stage=$('stage'), code=$('code'), go=$('btnGo'), speed=$('speed'), dur=$('dur'),
+        durText=$('durText'), loop=$('loop'), status=$('status'), btnStop=$('btnStop');
 
-  // Müzik kontrolü
-  let musicPlaying = true;
-  btnMusic.addEventListener('click', ()=> {
-    if(musicPlaying) {
-      bgMusic.pause();
-      btnMusic.textContent = '🎵 Müziği Başlat';
-      btnMusic.style.background = '#ef4444';
-      musicPlaying = false;
-    } else {
-      bgMusic.play().catch(e=>console.log('Müzik oynatılamadı:', e));
-      btnMusic.textContent = '🎵 Müziği Durdur';
-      btnMusic.style.background = '#10b981';
-      musicPlaying = true;
+  //--- AYAR: sabit dosya adları (docs altında) ---
+  const FILE_MP3_REL = 'song.mp3';
+  const FILE_MP3_DOCS = '/docs/song.mp3';
+  const FILE_MARKER_REL = 'imleç.jpg';
+  const FILE_MARKER_DOCS = '/docs/imleç.jpg';
+
+  //--- Basit örnek rota verisi (istersen kiosk_config.json ile üzerine yazılır) ---
+  let cfg = {
+    width:900, height:520, bg:null,
+    routes:{
+      1:[{x:80,y:480},{x:80,y:240},{x:880,y:240}],
+      2:[{x:80,y:480},{x:80,y:300},{x:320,y:300},{x:740,y:300}],
+      3:[{x:80,y:480},{x:80,y:240},{x:600,y:240}],
+      4:[{x:80,y:480},{x:80,y:232},{x:520,y:240}],
+      5:[{x:80,y:480},{x:80,y:241},{x:460,y:241}],
+      6:[{x:80,y:480},{x:80,y:233},{x:340,y:241}],
+      7:[{x:80,y:480},{x:80,y:233},{x:260,y:241}],
+      8:[{x:80,y:480},{x:80,y:241},{x:190,y:241}]
     }
-  });
+  };
 
-  // Sayfa yüklendiğinde müziği başlat (tarayıcı izin verirse)
-  document.addEventListener('DOMContentLoaded', ()=> {
-    bgMusic.play().catch(e=> {
-      console.log('Otomatik müzik oynatma engellendi, kullanıcı etkileşimi gerekli:', e);
-      musicPlaying = false;
-      btnMusic.textContent = '🎵 Müziği Başlat';
-      btnMusic.style.background = '#ef4444';
-    });
-  });
-
-  // toggle
-  let advVisible=false; function setAdv(v){ advVisible=v; adv.style.display=v?'':'none'; toggle.textContent=v?'Ayarları Gizle':'Ayarları Göster'; }
-  toggle.addEventListener('click',()=>{ setAdv(!advVisible); saveUI(); }); setAdv(false);
-
-  // ui persist
-  function saveUI(){ localStorage.setItem(UI, JSON.stringify({code:code.value||'', speed:speed.value, dur:dur.value, loop:!!loop.checked, adv:advVisible})); }
-  function loadUI(){ try{return JSON.parse(localStorage.getItem(UI)||'{}')}catch(_){return {}} }
-  const ui=loadUI(); if(ui.code) code.value=ui.code; if(ui.speed) speed.value=ui.speed; if(ui.dur) dur.value=ui.dur; if(typeof ui.loop==='boolean') loop.checked=ui.loop; if(ui.adv) setAdv(true);
-  durText.textContent=dur.value+' ms'; dur.addEventListener('input',()=>{durText.textContent=dur.value+' ms'; saveUI();}); speed.addEventListener('change',()=>{ if(parseInt(speed.value,10)>0) dur.value=speed.value; durText.textContent=dur.value+' ms'; saveUI(); });
-  code.addEventListener('input',saveUI); loop.addEventListener('change',saveUI);
-
-  // load config: 1) localStorage 2) kiosk_config.json 3) embedded default
-  async function loadCfg(){ 
-    try{ const s=localStorage.getItem(LS); if(s) return JSON.parse(s); }catch(_){}
-    try{ const r=await fetch('kiosk_config.json',{cache:'no-store'}); if(r.ok) return await r.json(); }catch(_){}
-    try{ return JSON.parse(document.getElementById('defaultCfg').textContent); }catch(_){ return null; }
-  }
-  function saveCfg(o){ localStorage.setItem(LS, JSON.stringify(o)); }
-  function valid(o){ return o && o.routes; }
-
-  // svg helpers
+  //--- SVG katmanları ---
   const gBG=svg('g'), gGrid=svg('g'), gRoute=svg('g'), gDot=svg('g'); stage.append(gBG,gGrid,gRoute,gDot);
   const bg=svg('image'); bg.setAttribute('x','0'); bg.setAttribute('y','0');
-  function svg(t){return document.createElementNS('http://www.w3.org/2000/svg',t);}
-  function setHref(img,href){ img.setAttribute('href',href); img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',href);}
-  function grid(W,H){ const d=svg('defs'),p=svg('pattern');p.setAttribute('id','g');p.setAttribute('width','40');p.setAttribute('height','40');p.setAttribute('patternUnits','userSpaceOnUse');const path=svg('path');path.setAttribute('d','M 40 0 L 0 0 0 40');path.setAttribute('fill','none');path.setAttribute('stroke','#233044');path.setAttribute('stroke-width','1');p.appendChild(path);d.appendChild(p);gGrid.appendChild(d);const r=svg('rect');r.setAttribute('x',0);r.setAttribute('y',0);r.setAttribute('width',W);r.setAttribute('height',H);r.setAttribute('fill','url(#g)');gGrid.appendChild(r);}
-  function poly(pts,color,w){ const pl=svg('polyline'); pl.setAttribute('points',pts.map(p=>p.x+','+p.y).join(' ')); pl.setAttribute('fill','none'); pl.setAttribute('stroke',color); pl.setAttribute('stroke-width',w); pl.setAttribute('stroke-linejoin','round'); gRoute.appendChild(pl); }
-  function pointOn(pts,t){ if(pts.length<2) return pts[0]||{x:0,y:0}; let total=0,segs=[]; for(let i=0;i<pts.length-1;i++){ const a=pts[i],b=pts[i+1],d=Math.hypot(b.x-a.x,b.y-a.y); segs.push({a,b,d}); total+=d; } const target=t*total; let acc=0; for(const s of segs){ if(acc+s.d>=target){ const lt=s.d===0?0:(target-acc)/s.d; return {x:s.a.x+(s.b.x-s.a.x)*lt, y:s.a.y+(s.b.y-s.a.y)*lt}; } acc+=s.d; } return pts[pts.length-1]; }
 
-  // draw + play - İMLEÇ OLARAK RESIM KULLANIMI
-  let cfg=null, stopFlag=false;
-  function apply(){ const w=cfg.width||900,h=cfg.height||520; stage.setAttribute('width',w); stage.setAttribute('height',h); bg.setAttribute('width',w); bg.setAttribute('height',h); bg.setAttribute('preserveAspectRatio','xMidYMid meet'); gBG.innerHTML=''; gGrid.innerHTML=''; gRoute.innerHTML=''; gDot.innerHTML=''; if(cfg.bg){ setHref(bg,cfg.bg); gBG.appendChild(bg); } else grid(w,h); const arr=Object.keys(cfg.routes).filter(k=>cfg.routes[k]?.length); status.textContent=arr.length?('Hazır rotalar: '+arr.join(', ')):'Hiç rota yok.'; }
-  
-  function placeMarker(p){ 
-    gDot.innerHTML=''; 
-    const img=svg('image'); 
-    const size = 32; // İmleç boyutu
-    img.setAttribute('x', p.x - size/2); 
-    img.setAttribute('y', p.y - size/2); 
-    img.setAttribute('width', size); 
-    img.setAttribute('height', size); 
-    setHref(img, 'imleç.jpg'); 
-    gDot.appendChild(img); 
+  //--- İmleç resmi (varsayılan: /docs/imleç.jpg) ---
+  let markerHref=null, markerImg=null;
+  preferredPath(FILE_MARKER_REL, FILE_MARKER_DOCS).then(u=>markerHref=u);
+
+  //--- Müzik: /docs/song.mp3 (loop + otomatik oynatmayı dener) ---
+  const audio = new Audio(); audio.loop = true; audio.volume = 0.6;
+  preferredPath(FILE_MP3_REL, FILE_MP3_DOCS).then(u=>{
+    audio.src = u;
+    tryAutoPlay();
+  });
+
+  function tryAutoPlay(){
+    const url = new URL(location.href);
+    const autoplay = url.searchParams.get('autoplay') !== '0'; // ?autoplay=0 ile kapatılabilir
+    if(!autoplay || !audio.src) return;
+    audio.play().catch(()=>{               // iOS/Chrome politika engeli olabilir
+      const kick = ()=>{ audio.play().finally(()=>{window.removeEventListener('pointerdown',kick);window.removeEventListener('keydown',kick);}); };
+      window.addEventListener('pointerdown',kick,{once:true});
+      window.addEventListener('keydown',kick,{once:true});
+    });
   }
-  
-  function play(i){ const pts=cfg.routes[i]||[]; if(pts.length<1){ status.textContent='Bu koda ait rota yok.'; return; } const durMs=parseInt(dur.value,10); gRoute.innerHTML=''; gDot.innerHTML=''; poly(pts,'#38bdf8',4); const start=()=>{ const t0=performance.now(); const step=now=>{ if(stopFlag) return; const t=Math.min(1,(now-t0)/durMs); const p=pointOn(pts,t); placeMarker(p); if(t<1) requestAnimationFrame(step); else if(loop.checked) requestAnimationFrame(()=>start()); }; requestAnimationFrame(step); }; if(durMs<=0){ placeMarker(pts[pts.length-1]); return; } start(); }
-  $('btnStop').addEventListener('click',()=> stopFlag=true);
-  $('btnGo').addEventListener('click',()=>{ const m=String(code.value||'').match(/\d+/); const n=m?parseInt(m[0],10):0; if(n<1||n>8){ status.textContent='Kodun ilk sayısı 1–8 olmalı.'; return; } stopFlag=false; play(n); });
 
-  btnExport.addEventListener('click',()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(cfg)],{type:'application/json'})); a.download='kiosk_config.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); });
-  btnReset.addEventListener('click',()=>{ localStorage.removeItem(LS); localStorage.removeItem(UI); location.reload(); });
+  //--- (opsiyonel) aynı klasörde kiosk_config.json varsa yükle ---
+  fetch('kiosk_config.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(o=>{
+    if(o && o.routes) { cfg=o; apply(); } else { apply(); }
+  }).catch(()=>apply());
 
-  // boot
-  loadCfg().then(o=>{ cfg=o||{width:900,height:520,bg:null,routes:{1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[]}}; saveCfg(cfg); apply(); });
-})(); 
+  //--- UI ---
+  function syncDur(){ if(parseInt(speed.value,10)>0){ dur.value=speed.value; } durText.textContent=dur.value+' ms'; }
+  speed.addEventListener('change', syncDur); dur.addEventListener('input', ()=>durText.textContent=dur.value+' ms'); syncDur();
+
+  let stopFlag=false;
+  go.addEventListener('click', ()=>{
+    const n=parseFirstInt(code.value); if(!n||n<1||n>8){ status.textContent='Kodun ilk sayısı 1–8 olmalı.'; return; }
+    stopFlag=false; play(n);
+    tryAutoPlay(); // kullanıcı etkileşimi olduysa müzik kesin başlar
+  });
+  btnStop.addEventListener('click', ()=>{ stopFlag=true; });
+
+  //--- Çizim/animasyon ---
+  function apply(){
+    const w=cfg.width||900, h=cfg.height||520;
+    stage.setAttribute('width',w); stage.setAttribute('height',h);
+    bg.setAttribute('width',w); bg.setAttribute('height',h); bg.setAttribute('preserveAspectRatio','xMidYMid meet');
+    gBG.innerHTML=''; gGrid.innerHTML=''; gRoute.innerHTML=''; gDot.innerHTML='';
+    if(cfg.bg){ setHref(bg,cfg.bg); gBG.appendChild(bg); } else grid(w,h);
+    const ready=Object.keys(cfg.routes).filter(k=>Array.isArray(cfg.routes[k])&&cfg.routes[k].length>0);
+    status.textContent = ready.length?('Hazır rotalar: '+ready.join(', ')):'Hiç rota yok.';
+  }
+
+  function play(i){
+    const pts = cfg.routes[i]||[]; if(pts.length<1){ status.textContent='Bu koda ait rota yok.'; return; }
+    const durMs = parseInt(dur.value,10);
+    gRoute.innerHTML=''; gDot.innerHTML='';
+    poly(pts,'#38bdf8',4);
+    const start=()=>{
+      const t0=performance.now();
+      const step=now=>{
+        if(stopFlag) return;
+        const t=Math.min(1,(now-t0)/durMs);
+        const p=pointOn(pts,t);
+        placeMarker(p);
+        if(t<1) requestAnimationFrame(step); else if(loop.checked) requestAnimationFrame(()=>start());
+      };
+      requestAnimationFrame(step);
+    };
+    if(durMs<=0){ placeMarker(pts[pts.length-1]); return; }
+    start();
+  }
+
+  function placeMarker(p){
+    gDot.innerHTML='';
+    if(markerHref){
+      const size=28;
+      if(!markerImg) markerImg=svg('image');
+      markerImg.setAttribute('width',size); markerImg.setAttribute('height',size);
+      markerImg.setAttribute('x',p.x-size/2); markerImg.setAttribute('y',p.y-size/2);
+      setHref(markerImg, markerHref);
+      gDot.appendChild(markerImg);
+    }else{
+      const c=svg('circle'); c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',8); c.setAttribute('fill','#38bdf8'); gDot.appendChild(c);
+    }
+  }
+
+  //--- yardımcılar ---
+  function preferredPath(rel, abs){
+    return fetch(rel,{method:'HEAD',cache:'no-store'}).then(r=>{
+      if(r.ok) return rel;
+      return abs; // /docs/... fallback
+    }).catch(()=>abs);
+  }
+  function grid(W,H){
+    const d=svg('defs'), p=svg('pattern'); p.setAttribute('id','g'); p.setAttribute('width','40'); p.setAttribute('height','40'); p.setAttribute('patternUnits','userSpaceOnUse');
+    const path=svg('path'); path.setAttribute('d','M 40 0 L 0 0 0 40'); path.setAttribute('fill','none'); path.setAttribute('stroke','#233044'); path.setAttribute('stroke-width','1'); p.appendChild(path); d.appendChild(p);
+    gGrid.appendChild(d);
+    const r=svg('rect'); r.setAttribute('x','0'); r.setAttribute('y','0'); r.setAttribute('width',W); r.setAttribute('height',H); r.setAttribute('fill','url(#g)');
+    gGrid.appendChild(r);
+  }
+  function svg(t){ return document.createElementNS('http://www.w3.org/2000/svg', t); }
+  function setHref(img,href){
+    const enc = encodeURI(href); // imleç.jpg gibi Türkçe karakterler için
+    img.setAttribute('href',enc); img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',enc);
+  }
+  function poly(pts,color,w){ const pl=svg('polyline'); pl.setAttribute('points',pts.map(p=>`${p.x},${p.y}`).join(' ')); pl.setAttribute('fill','none'); pl.setAttribute('stroke',color); pl.setAttribute('stroke-width',w); pl.setAttribute('stroke-linejoin','round'); gRoute.appendChild(pl); }
+  function pointOn(pts,t){ if(pts.length<2) return pts[0]||{x:0,y:0}; let total=0,segs=[]; for(let i=0;i<pts.length-1;i++){ const a=pts[i],b=pts[i+1],d=Math.hypot(b.x-a.x,b.y-a.y); segs.push({a,b,d}); total+=d; } const target=t*total; let acc=0; for(const s of segs){ if(acc+s.d>=target){ const lt=s.d===0?0:(target-acc)/s.d; return {x:s.a.x+(s.b.x-s.a.x)*lt, y:s.a.y+(s.b.y-s.a.y)*lt}; } acc+=s.d; } return pts[pts.length-1]; }
+  function parseFirstInt(str){ if(!str) return null; const m=String(str).match(/\d+/); return m?parseInt(m[0],10):null; }
+})();
 </script>
 </body>
 </html>
