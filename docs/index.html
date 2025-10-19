@@ -1,45 +1,36 @@
+
 <!doctype html>
 <html lang="tr">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Rota Viewer — Kiosk (Varsayılan Dosyalarla)</title>
+<title>Rota Viewer — Kiosk (JSON gömülü)</title>
 <style>
-  :root{--ink:#e5e7eb;--line:#233044;--panel:#0f172a;--bg:#0b1220;--brand:#38bdf8}
-  *{box-sizing:border-box} body{margin:0;font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto;background:#0b1220;color:#e5e7eb}
-  header{padding:10px 14px;border-bottom:1px solid var(--line);background:#0c1426;display:flex;gap:8px;align-items:center}
-  header .title{font-weight:800}
+  body{margin:0;background:#0b1220;color:#e5e7eb;font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto}
+  header{padding:10px 14px;border-bottom:1px solid #233044;background:#0c1426;display:flex;gap:8px;align-items:center}
   header .sp{flex:1}
-  .wrap{max-width:1100px;margin:0 auto;padding:12px;display:grid;gap:12px}
-  .panel{border:1px solid var(--line);border-radius:12px;padding:12px;background:#0f172a}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  input[type="text"],select,textarea{border:1px solid var(--line);border-radius:8px;padding:10px;background:#0b1220;color:#e5e7eb}
-  input[type="range"]{accent-color:#38bdf8}
-  button{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:#0b1220;color:#e5e7eb;cursor:pointer}
+  button{border:1px solid #233044;border-radius:8px;padding:8px 12px;background:#0b1220;color:#e5e7eb;cursor:pointer}
   button.primary{background:#38bdf8;color:#001018;border-color:#38bdf8;font-weight:700}
-  svg{border:1px solid var(--line);border-radius:12px;background:#0b1220;display:block}
+  .wrap{max-width:1100px;margin:0 auto;padding:12px;display:grid;gap:12px}
+  .panel{border:1px solid #233044;border-radius:12px;padding:12px;background:#0f172a}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  input,select{border:1px solid #233044;border-radius:8px;padding:8px;background:#0b1220;color:#e5e7eb}
+  svg{border:1px solid #233044;border-radius:12px;background:#0b1220;display:block}
   .hint{font-size:13px;color:#94a3b8}
-  .small{font-size:12px}
-  details{border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  details>summary{list-style:none;cursor:pointer;padding:10px 12px;background:#0c1426;font-weight:700}
-  details[open]>summary{border-bottom:1px solid var(--line)}
-  details .p{padding:10px 12px}
-  .chip{border:1px solid #233044;border-radius:999px;padding:4px 10px}
 </style>
 </head>
 <body>
 <header>
-  <div class="title">Rota Viewer — Kiosk</div>
+  <div><strong>Rota Viewer — Kiosk</strong> <span class="hint">• JSON gömülü • dış dosya olmasa da çalışır</span></div>
   <div class="sp"></div>
   <button id="btnToggle">Ayarları Göster</button>
 </header>
 
 <div class="wrap">
-  <!-- Sabit Kullanıcı Alanı -->
-  <div class="panel" id="userPanel">
+  <div class="panel">
     <div class="row">
       <label>Kod:</label>
-      <input id="code" type="text" placeholder="örn: 2-34.5"/>
+      <input id="code" placeholder="örn: 2-34.5"/>
       <button id="btnGo" class="primary">Göster</button>
       <label>Hız:</label>
       <select id="speed">
@@ -47,48 +38,21 @@
         <option value="1500">Orta</option>
         <option value="3000" selected>Yavaş</option>
         <option value="6000">Çok Yavaş</option>
-        <option value="12000">Ultra Yavaş</option>
       </select>
-      <span class="small">ince ayar</span>
       <input id="dur" type="range" min="500" max="30000" step="100" value="3000"/>
-      <span id="durText" class="small">3000 ms</span>
-      <label class="chip"><input id="loop" type="checkbox" checked> Sürekli döngü</label>
+      <span id="durText" class="hint">3000 ms</span>
+      <label class="hint"><input id="loop" type="checkbox" checked> Sürekli döngü</label>
       <button id="btnStop">Durdur</button>
     </div>
-    <div class="hint" id="status">Kodun ilk sayısı (1–8) rota seçer. Örn: 8-xxx → Yol 8</div>
+    <div id="status" class="hint">Kodun ilk sayısı (1–8) rota seçer. Örn: 8-xxx → Yol 8</div>
   </div>
 
-  <!-- GİZLİ AYARLAR -->
   <details id="adv" style="display:none;">
-    <summary>Ayarlar • JSON / Arkaplan / İmleç / Müzik</summary>
-    <div class="p">
-      <div class="row" style="margin-bottom:8px">
-        <button id="btnPaste">JSON Yapıştır</button>
-        <button id="btnLoad">JSON Yükle</button>
-        <input id="file" type="file" accept="application/json" style="display:none"/>
-        <button id="btnExport">JSON Dışa Aktar</button>
-        <button id="btnShare" class="primary">Paylaşım Linki</button>
-      </div>
-      <div class="row" style="margin-bottom:8px">
-        <label>Hareketli Nokta (İmleç):</label>
-        <input id="markerFile" type="file" accept="image/*"/>
-        <select id="markerSize">
-          <option value="20">20px</option>
-          <option value="28" selected>28px</option>
-          <option value="36">36px</option>
-          <option value="48">48px</option>
-        </select>
-        <button id="btnClearMarker">Varsayılan nokta</button>
-        <span id="markerStatus" class="hint"></span>
-      </div>
+    <summary>Ayarlar • JSON</summary>
+    <div class="panel">
       <div class="row">
-        <label>Müzik (mp3/ogg/wav):</label>
-        <input id="musicFile" type="file" accept="audio/*"/>
-        <button id="btnPlayMusic">Müziği Çal</button>
-        <button id="btnPauseMusic">Duraklat</button>
-        <label>Ses:</label>
-        <input id="vol" type="range" min="0" max="1" step="0.01" value="0.6"/>
-        <span id="musicStatus" class="hint"></span>
+        <button id="btnExport">JSON Dışa Aktar</button>
+        <button id="btnReset">Yerel ayarları sıfırla</button>
       </div>
     </div>
   </details>
@@ -98,141 +62,59 @@
   </div>
 </div>
 
+<!-- Gömülü JSON (senin yüklediğin yapı) -->
+<script id="defaultCfg" type="application/json">{"width":900,"height":520,"bg":null,"routes":{"1":[{"x":104,"y":469},{"x":103,"y":470},{"x":87,"y":463},{"x":74,"y":391},{"x":76,"y":251},{"x":147,"y":231},{"x":877,"y":240}],"2":[{"x":112,"y":468},{"x":103,"y":469},{"x":73,"y":433},{"x":73,"y":341},{"x":73,"y":262},{"x":149,"y":231},{"x":375,"y":236},{"x":735,"y":242}],"3":[{"x":103,"y":469},{"x":76,"y":432},{"x":68,"y":242},{"x":608,"y":237}],"4":[{"x":105,"y":467},{"x":75,"y":426},{"x":68,"y":301},{"x":75,"y":232},{"x":537,"y":239}],"5":[{"x":97,"y":469},{"x":77,"y":435},{"x":69,"y":328},{"x":76,"y":241},{"x":473,"y":241}],"6":[{"x":101,"y":470},{"x":71,"y":410},{"x":71,"y":314},{"x":73,"y":233},{"x":349,"y":241}],"7":[{"x":94,"y":465},{"x":75,"y":403},{"x":70,"y":309},{"x":76,"y":233},{"x":263,"y":241}],"8":[{"x":95,"y":471},{"x":74,"y":405},{"x":73,"y":305},{"x":73,"y":241},{"x":190,"y":241}]}}</script>
+
 <script>
-(function(){
+(function(){ 
   const $=id=>document.getElementById(id);
   const LS='viewer.cfg.simple';
-  const LS_MARK='viewer.marker.simple';
-  const LS_AUD='viewer.audio.simple';
-  const UI='viewer.ui.simple.v1';
+  const UI='viewer.ui.simple';
+  const stage=$('stage'), code=$('code'), go=$('btnGo'), speed=$('speed'), dur=$('dur'), durText=$('durText'), loop=$('loop'), status=$('status');
+  const adv=$('adv'), toggle=$('btnToggle'), btnExport=$('btnExport'), btnReset=$('btnReset');
 
-  const stage=$('stage'), code=$('code'), go=$('btnGo'), speed=$('speed'), status=$('status');
-  const dur=$('dur'), durText=$('durText'), loop=$('loop'), btnStop=$('btnStop');
-  const adv=$('adv'), toggle=$('btnToggle');
+  // toggle
+  let advVisible=false; function setAdv(v){ advVisible=v; adv.style.display=v?'':'none'; toggle.textContent=v?'Ayarları Gizle':'Ayarları Göster'; }
+  toggle.addEventListener('click',()=>{ setAdv(!advVisible); saveUI(); }); setAdv(false);
 
-  const btnPaste=$('btnPaste'), btnLoad=$('btnLoad'), file=$('file'), btnExport=$('btnExport');
-  const btnShare=$('btnShare');
-  const markerFile=$('markerFile'), markerSize=$('markerSize'), btnClearMarker=$('btnClearMarker');
-  const musicFile=$('musicFile'), btnPlayMusic=$('btnPlayMusic'), btnPauseMusic=$('btnPauseMusic'), vol=$('vol');
+  // ui persist
+  function saveUI(){ localStorage.setItem(UI, JSON.stringify({code:code.value||'', speed:speed.value, dur:dur.value, loop:!!loop.checked, adv:advVisible})); }
+  function loadUI(){ try{return JSON.parse(localStorage.getItem(UI)||'{}')}catch(_){return {}} }
+  const ui=loadUI(); if(ui.code) code.value=ui.code; if(ui.speed) speed.value=ui.speed; if(ui.dur) dur.value=ui.dur; if(typeof ui.loop==='boolean') loop.checked=ui.loop; if(ui.adv) setAdv(true);
+  durText.textContent=dur.value+' ms'; dur.addEventListener('input',()=>{durText.textContent=dur.value+' ms'; saveUI();}); speed.addEventListener('change',()=>{ if(parseInt(speed.value,10)>0) dur.value=speed.value; durText.textContent=dur.value+' ms'; saveUI(); });
+  code.addEventListener('input',saveUI); loop.addEventListener('change',saveUI);
 
-  // Toggle advanced
-  let advVisible=false;
-  function setAdv(v){ advVisible=v; adv.style.display=v?'':'none'; toggle.textContent=v?'Ayarları Gizle':'Ayarları Göster'; }
-  toggle.addEventListener('click', ()=>{ setAdv(!advVisible); saveUI(getUI()); });
-  setAdv(false);
+  // load config: 1) localStorage 2) kiosk_config.json 3) embedded default
+  async function loadCfg(){ 
+    try{ const s=localStorage.getItem(LS); if(s) return JSON.parse(s); }catch(_){}
+    try{ const r=await fetch('kiosk_config.json',{cache:'no-store'}); if(r.ok) return await r.json(); }catch(_){}
+    try{ return JSON.parse(document.getElementById('defaultCfg').textContent); }catch(_){ return null; }
+  }
+  function saveCfg(o){ localStorage.setItem(LS, JSON.stringify(o)); }
+  function valid(o){ return o && o.routes; }
 
-  // SVG layers
+  // svg helpers
   const gBG=svg('g'), gGrid=svg('g'), gRoute=svg('g'), gDot=svg('g'); stage.append(gBG,gGrid,gRoute,gDot);
   const bg=svg('image'); bg.setAttribute('x','0'); bg.setAttribute('y','0');
-  let markerImg=null, markerHref=loadMarker();
-
-  // Audio
-  const audio=new Audio(); audio.loop=true;
-  const audData=loadAudio(); if(audData){ audio.src=audData; }
-  audio.volume=parseFloat(localStorage.getItem(LS_AUD+'.vol')||'0.6'); if(vol) vol.value=audio.volume;
-  function tryAutoPlay(){ if(!audio.src) return; audio.play().catch(()=>{}); }
-
-  // Load defaults if present
-  async function tryLoadDefaults(){
-    try{
-      const r=await fetch('kiosk_config.json',{cache:'no-store'});
-      if(r.ok){ const cfg=await r.json(); if(valid(cfg)) saveCfg(cfg); }
-    }catch(_){}
-    try{
-      const r2=await fetch('imlec.jpg',{method:'HEAD',cache:'no-store'});
-      if(r2.ok){ markerHref='imlec.jpg'; saveMarker(markerHref); }
-    }catch(_){}
-    try{
-      const r3=await fetch('Super Mario Bros. Theme Song.mp3',{method:'HEAD',cache:'no-store'});
-      if(r3.ok){ audio.src='Super Mario Bros. Theme Song.mp3'; saveAudio(audio.src); }
-    }catch(_){}
-  }
-
-  // URL params
-  const usp=new URLSearchParams(location.search);
-  if(usp.get('reset')==='1'){ localStorage.removeItem(LS); localStorage.removeItem(LS_MARK); localStorage.removeItem(LS_AUD); localStorage.removeItem(UI); alert('Ayarlar sıfırlandı'); }
-  const autoplay=usp.get('autoplay')!=='0';
-
-  // Load cfg & UI
-  let cfg=loadCfg()||{width:900,height:520,bg:null,routes:{1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[]}};
-  function saveUI(o){ localStorage.setItem(UI, JSON.stringify(o)); }
-  function loadUI(){ try{ const s=localStorage.getItem(UI); if(s) return JSON.parse(s); }catch(_){ } return {}; }
-  function getUI(){ return { code:code.value||'', speed:speed.value, dur:dur.value, loop:!!loop.checked, advVisible:advVisible }; }
-  function setUI(u){ if(u.code) code.value=u.code; if(u.speed) speed.value=u.speed; if(u.dur){ dur.value=u.dur; durText.textContent=u.dur+' ms'; } if(typeof u.loop==='boolean') loop.checked=u.loop; if(typeof u.advVisible==='boolean') setAdv(u.advVisible); }
-  setUI(loadUI());
-
-  // Apply canvas
-  apply();
-
-  // Load defaults then maybe autoplay
-  tryLoadDefaults().then(()=>{ cfg=loadCfg()||cfg; apply(); if(autoplay) tryAutoPlay(); const p=usp.get('k'); if(p){ code.value=p; const n=parseFirstInt(p); if(n>=1&&n<=8) setTimeout(()=>play(n),150); } });
-
-  // UI persist
-  function syncDur(){ if(parseInt(speed.value,10)>0){ dur.value=speed.value; } durText.textContent=dur.value+' ms'; }
-  speed.addEventListener('change', ()=>{ syncDur(); saveUI(getUI()); });
-  dur.addEventListener('input', ()=>{ durText.textContent=dur.value+' ms'; saveUI(getUI()); });
-  loop.addEventListener('change', ()=>{ saveUI(getUI()); });
-  code.addEventListener('input', ()=>{ saveUI(getUI()); });
-  syncDur();
-
-  // Uploads
-  if(markerFile) markerFile.addEventListener('change', e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ markerHref=String(rd.result); saveMarker(markerHref); }; rd.readAsDataURL(f); });
-  if(btnClearMarker) btnClearMarker.addEventListener('click', ()=>{ markerHref=null; saveMarker(null); });
-  if(musicFile) musicFile.addEventListener('change', e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const rd=new FileReader(); rd.onload=()=>{ audio.src=String(rd.result); saveAudio(audio.src); if(autoplay) tryAutoPlay(); }; rd.readAsDataURL(f); });
-  if(btnPlayMusic) btnPlayMusic.addEventListener('click', ()=>{ audio.play().catch(()=>{}); });
-  if(btnPauseMusic) btnPauseMusic.addEventListener('click', ()=>audio.pause());
-  if(vol) vol.addEventListener('input', ()=>{ audio.volume=parseFloat(vol.value); localStorage.setItem(LS_AUD+'.vol', String(audio.volume)); });
-
-  // JSON Paste/Load/Export
-  if(btnPaste) btnPaste.addEventListener('click', ()=> alert('JSON yapıştırma penceresi bu basit sürümde kapalı. Dosyayı kopyalayın: kiosk_config.json'));
-  if(btnLoad) btnLoad.addEventListener('click', ()=>$('file').click());
-  if(file) file.addEventListener('change', async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; try{ const txt=await f.text(); const o=JSON.parse(txt); if(valid(o)){ saveCfg(o); cfg=o; apply(); } }catch(_){ } });
-  if(btnExport) btnExport.addEventListener('click', ()=>{ const s=localStorage.getItem(LS)||'{}'; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([s],{type:'application/json'})); a.download='kiosk_config.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); });
-
-  // Play
-  let stopFlag=false;
-  go.addEventListener('click', ()=>{ const n=parseFirstInt(code.value); if(!n||n<1||n>8){ status.textContent='Kodun ilk sayısı 1–8 olmalı.'; return; } stopFlag=false; play(n); if(autoplay) tryAutoPlay(); saveUI(getUI()); });
-  btnStop.addEventListener('click', ()=>{ stopFlag=true; });
-
-  // Core
-  function apply(){
-    const cfgObj=loadCfg()||cfg;
-    const w=cfgObj.width||900, h=cfgObj.height||520;
-    stage.setAttribute('width',w); stage.setAttribute('height',h);
-    bg.setAttribute('width',w); bg.setAttribute('height',h); bg.setAttribute('preserveAspectRatio','xMidYMid meet');
-    gBG.innerHTML=''; gGrid.innerHTML=''; gRoute.innerHTML=''; gDot.innerHTML='';
-    if(cfgObj.bg){ setHref(bg,cfgObj.bg); gBG.appendChild(bg); } else grid(w,h);
-    listReady(cfgObj);
-  }
-  function play(i){
-    const cfgObj=loadCfg()||cfg;
-    const pts = (cfgObj.routes && cfgObj.routes[i]) ? cfgObj.routes[i] : [];
-    if(!pts || pts.length<1){ status.textContent='Bu koda ait rota yok.'; return; }
-    const durMs=parseInt(dur.value,10);
-    gRoute.innerHTML=''; gDot.innerHTML=''; poly(pts,'#38bdf8',4);
-    const start=()=>{ const t0=performance.now(); const step=now=>{ if(stopFlag) return; const t=Math.min(1,(now-t0)/durMs); const p=pointOn(pts,t); placeMarker(p); if(t<1) requestAnimationFrame(step); else if(loop.checked){ requestAnimationFrame(()=>start()); } }; requestAnimationFrame(step); };
-    if(durMs<=0){ placeMarker(pts[pts.length-1]); return; } start();
-  }
-  function placeMarker(p){
-    gDot.innerHTML=''; const size=parseInt(markerSize?.value||'28',10);
-    if(markerHref){ let img=markerImg||svg('image'); img.setAttribute('width',size); img.setAttribute('height',size); img.setAttribute('x',p.x-size/2); img.setAttribute('y',p.y-size/2); setHref(img,markerHref); if(!markerImg){ markerImg=img; } gDot.appendChild(img); }
-    else { const c=svg('circle'); c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r', Math.max(6, size/3)); c.setAttribute('fill','#38bdf8'); gDot.appendChild(c); }
-  }
-  function listReady(cfgObj){ const arr=Object.keys(cfgObj.routes||{}).filter(k=>Array.isArray(cfgObj.routes[k])&&cfgObj.routes[k].length>0); status.innerHTML=(arr.length?('Hazır rotalar: '+arr.join(', ')):'Hiç rota yok.'); }
-
-  // utils
-  function grid(W,H){ const d=svg('defs'), p=svg('pattern'); p.setAttribute('id','g'); p.setAttribute('width','40'); p.setAttribute('height','40'); p.setAttribute('patternUnits','userSpaceOnUse'); const path=svg('path'); path.setAttribute('d','M 40 0 L 0 0 0 40'); path.setAttribute('fill','none'); path.setAttribute('stroke','#233044'); path.setAttribute('stroke-width','1'); p.appendChild(path); d.appendChild(p); gGrid.appendChild(d); const r=svg('rect'); r.setAttribute('x','0'); r.setAttribute('y','0'); r.setAttribute('width',W); r.setAttribute('height',H); r.setAttribute('fill','url(#g)'); gGrid.appendChild(r); }
-  function svg(t){ return document.createElementNS('http://www.w3.org/2000/svg', t); }
-  function setHref(img,href){ img.setAttribute('href',href); img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',href); }
-  function poly(pts,color,w){ const pl=svg('polyline'); pl.setAttribute('points',pts.map(p=>`${p.x},${p.y}`).join(' ')); pl.setAttribute('fill','none'); pl.setAttribute('stroke',color); pl.setAttribute('stroke-width',w); pl.setAttribute('stroke-linejoin','round'); gRoute.appendChild(pl); }
+  function svg(t){return document.createElementNS('http://www.w3.org/2000/svg',t);}
+  function setHref(img,href){ img.setAttribute('href',href); img.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',href);}
+  function grid(W,H){ const d=svg('defs'),p=svg('pattern');p.setAttribute('id','g');p.setAttribute('width','40');p.setAttribute('height','40');p.setAttribute('patternUnits','userSpaceOnUse');const path=svg('path');path.setAttribute('d','M 40 0 L 0 0 0 40');path.setAttribute('fill','none');path.setAttribute('stroke','#233044');path.setAttribute('stroke-width','1');p.appendChild(path);d.appendChild(p);gGrid.appendChild(d);const r=svg('rect');r.setAttribute('x',0);r.setAttribute('y',0);r.setAttribute('width',W);r.setAttribute('height',H);r.setAttribute('fill','url(#g)');gGrid.appendChild(r);}
+  function poly(pts,color,w){ const pl=svg('polyline'); pl.setAttribute('points',pts.map(p=>p.x+','+p.y).join(' ')); pl.setAttribute('fill','none'); pl.setAttribute('stroke',color); pl.setAttribute('stroke-width',w); pl.setAttribute('stroke-linejoin','round'); gRoute.appendChild(pl); }
   function pointOn(pts,t){ if(pts.length<2) return pts[0]||{x:0,y:0}; let total=0,segs=[]; for(let i=0;i<pts.length-1;i++){ const a=pts[i],b=pts[i+1],d=Math.hypot(b.x-a.x,b.y-a.y); segs.push({a,b,d}); total+=d; } const target=t*total; let acc=0; for(const s of segs){ if(acc+s.d>=target){ const lt=s.d===0?0:(target-acc)/s.d; return {x:s.a.x+(s.b.x-s.a.x)*lt, y:s.a.y+(s.b.y-s.a.y)*lt}; } acc+=s.d; } return pts[pts.length-1]; }
-  function saveCfg(o){ localStorage.setItem(LS, JSON.stringify(o)); }
-  function loadCfg(){ try{ const s=localStorage.getItem(LS); if(s) return JSON.parse(s); }catch(_){ } return null; }
-  function valid(o){ return o && typeof o==='object' && o.routes && o.width && o.height; }
-  function saveMarker(d){ if(!d){ localStorage.removeItem(LS_MARK); } else { localStorage.setItem(LS_MARK, d); } }
-  function loadMarker(){ try{ return localStorage.getItem(LS_MARK); }catch(_){ return null; } }
-  function saveAudio(d){ if(!d){ localStorage.removeItem(LS_AUD); } else { localStorage.setItem(LS_AUD, d); } }
-  function loadAudio(){ try{ return localStorage.getItem(LS_AUD); }catch(_){ return null; } }
+
+  // draw + play
+  let cfg=null, stopFlag=false;
+  function apply(){ const w=cfg.width||900,h=cfg.height||520; stage.setAttribute('width',w); stage.setAttribute('height',h); bg.setAttribute('width',w); bg.setAttribute('height',h); bg.setAttribute('preserveAspectRatio','xMidYMid meet'); gBG.innerHTML=''; gGrid.innerHTML=''; gRoute.innerHTML=''; gDot.innerHTML=''; if(cfg.bg){ setHref(bg,cfg.bg); gBG.appendChild(bg); } else grid(w,h); const arr=Object.keys(cfg.routes).filter(k=>cfg.routes[k]?.length); status.textContent=arr.length?('Hazır rotalar: '+arr.join(', ')):'Hiç rota yok.'; }
+  function placeMarker(p){ gDot.innerHTML=''; const c=svg('circle'); c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',8); c.setAttribute('fill','#38bdf8'); gDot.appendChild(c); }
+  function play(i){ const pts=cfg.routes[i]||[]; if(pts.length<1){ status.textContent='Bu koda ait rota yok.'; return; } const durMs=parseInt(dur.value,10); gRoute.innerHTML=''; gDot.innerHTML=''; poly(pts,'#38bdf8',4); const start=()=>{ const t0=performance.now(); const step=now=>{ if(stopFlag) return; const t=Math.min(1,(now-t0)/durMs); const p=pointOn(pts,t); placeMarker(p); if(t<1) requestAnimationFrame(step); else if(loop.checked) requestAnimationFrame(()=>start()); }; requestAnimationFrame(step); }; if(durMs<=0){ placeMarker(pts[pts.length-1]); return; } start(); }
+  $('btnStop').addEventListener('click',()=> stopFlag=true);
+  $('btnGo').addEventListener('click',()=>{ const m=String(code.value||'').match(/\d+/); const n=m?parseInt(m[0],10):0; if(n<1||n>8){ status.textContent='Kodun ilk sayısı 1–8 olmalı.'; return; } stopFlag=false; play(n); });
+
+  btnExport.addEventListener('click',()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(cfg)],{type:'application/json'})); a.download='kiosk_config.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); });
+  btnReset.addEventListener('click',()=>{ localStorage.removeItem(LS); localStorage.removeItem(UI); location.reload(); });
+
+  // boot
+  loadCfg().then(o=>{ cfg=o||{width:900,height:520,bg:null,routes:{1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[]}}; saveCfg(cfg); apply(); });
 })(); 
 </script>
 </body>
